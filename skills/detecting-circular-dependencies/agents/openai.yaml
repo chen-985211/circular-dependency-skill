@@ -1,0 +1,4 @@
+interface:
+  display_name: "Detect Circular Dependencies"
+  short_description: "Find module-level circular dependencies"
+  default_prompt: "Use $detecting-circular-dependencies to check whether these modules participate in circular dependencies."
