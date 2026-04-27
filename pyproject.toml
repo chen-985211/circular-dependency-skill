@@ -1,0 +1,11 @@
+[project]
+name = "circular-dependency-skill"
+version = "0.1.0"
+description = "Codex skill for detecting circular dependencies"
+requires-python = ">=3.9"
+dependencies = []
+
+[dependency-groups]
+validate = [
+    "PyYAML>=6.0",
+]
