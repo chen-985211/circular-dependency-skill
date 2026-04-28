@@ -22,6 +22,9 @@ The skill tells Codex how to choose the right analysis boundary and how to repor
 ## Repository Layout
 
 ```text
+LICENSE
+README.md
+pyproject.toml
 skills/detecting-circular-dependencies/
   SKILL.md
   agents/openai.yaml
@@ -86,6 +89,30 @@ From the repository root:
 
 ```bash
 python3 skills/detecting-circular-dependencies/scripts/detect_cycles.py /path/to/project --json
+```
+
+Truncated JSON output looks like this:
+
+```json
+{
+  "graph_level": "file",
+  "cycles_found": true,
+  "cycles": [
+    {
+      "cycle_kind": "runtime",
+      "path": ["src/a.ts", "src/b.ts", "src/a.ts"],
+      "edges": [
+        {
+          "from_file": "src/a.ts",
+          "line": 1,
+          "to_file": "src/b.ts",
+          "specifier": "./b",
+          "suggested_breakpoint": "Move shared runtime code to a neutral module or invert this import through a narrower interface."
+        }
+      ]
+    }
+  ]
+}
 ```
 
 Check a specific target:
@@ -220,3 +247,32 @@ python3 -B skills/detecting-circular-dependencies/scripts/detect_cycles.py . \
 
 If you are developing inside Codex and have the `skill-creator` system skill available, you can also run its `quick_validate.py` script against `skills/detecting-circular-dependencies`.
 
+## Contributing
+
+Contributions are welcome, especially parser fixes, resolver improvements, documentation examples, and test cases for real project layouts.
+
+Before opening a pull request:
+
+- Keep the detector dependency-free unless there is a strong reason to change that constraint.
+- Add or update tests in `tests/test_detect_cycles.py` for parser and resolver changes.
+- Run `python3 -B -m unittest discover -v` from the repository root.
+- Run the self-check command above when changing the skill instructions or detector behavior.
+
+Please open an issue first for large behavior changes, new language support, or changes that affect the JSON output shape.
+
+## Maintenance And Security
+
+This project is maintained as a best-effort Codex skill and static-analysis helper. The detector intentionally favors transparent evidence over perfect language-server-level resolution.
+
+For bugs, false positives, false negatives, or documentation gaps, open a GitHub issue with:
+
+- the command you ran
+- the relevant project layout or a minimal reproduction
+- the observed output
+- the output you expected
+
+For security-sensitive reports, do not include private source code in a public issue. Open a minimal issue describing the affected area and request a private disclosure channel.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
