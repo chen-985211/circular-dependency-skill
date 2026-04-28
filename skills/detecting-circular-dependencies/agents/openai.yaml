@@ -1,4 +1,4 @@
 interface:
   display_name: "Detect Circular Dependencies"
-  short_description: "Find module-level circular dependencies"
-  default_prompt: "Use $detecting-circular-dependencies to check whether these modules participate in circular dependencies."
+  short_description: "Find file, directory, package, and layer cycles"
+  default_prompt: "Use $detecting-circular-dependencies to check whether these files, directories, packages, or architecture layers participate in circular dependencies."
