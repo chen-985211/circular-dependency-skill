@@ -1,6 +1,6 @@
 # Circular Dependency Skill
 
-A Codex skill and standalone static analyzer for finding circular dependencies in local Python and JavaScript/TypeScript projects.
+A Codex skill and standalone static analyzer for finding circular dependencies in local Python and JavaScript/TypeScript projects. The skill also guides follow-up blast-radius review: using dependency cycles as leads for boundary drift, shared-state, contract-drift, temporal-coupling, and user-visible bug risks.
 
 The skill tells Codex how to choose the right analysis boundary and how to report evidence. The bundled detector builds an internal import graph and finds cycles with strongly connected components, so results are based on graph analysis rather than text search.
 
@@ -12,6 +12,7 @@ The skill tells Codex how to choose the right analysis boundary and how to repor
 - Report architecture-rule violations, such as `domain -> infrastructure` when that direction is not allowed
 - Classify cycles as `runtime`, `type-only`, `dynamic`, or `mixed`
 - Include source file, line number, import specifier, and a suggested breakpoint for each reported edge
+- Review high-risk cycle paths for likely bugs and describe user-visible impact
 
 ## Requirements
 
@@ -28,6 +29,7 @@ pyproject.toml
 skills/detecting-circular-dependencies/
   SKILL.md
   agents/openai.yaml
+  references/bug-review-playbook.md
   references/language-strategies.md
   scripts/detect_cycles.py
 tests/
@@ -81,7 +83,11 @@ Use $detecting-circular-dependencies to check whether src/domain participates in
 Use $detecting-circular-dependencies to check architecture-layer cycles using layers.json.
 ```
 
-Codex should report the selected boundary, graph level, exact cycle path, source file and line for each edge, caveats, risk level, and a small suggested breakpoint.
+```text
+Use $detecting-circular-dependencies to check this project for circular dependencies and then review the highest-risk dependency paths for user-visible bugs.
+```
+
+Codex should report the selected boundary, graph level, exact cycle path, source file and line for each edge, caveats, risk level, and a small suggested breakpoint. When bug review is requested, it should inspect the highest-risk paths first, separate confirmed bugs from architecture risks, and describe user-visible behavior plus a verification idea for each finding. When the user only asks for cycle detection, Codex should still end with a short next-step offer to continue into the full blast-radius bug review, even if no cycles are found.
 
 ## Run The Detector Directly
 
