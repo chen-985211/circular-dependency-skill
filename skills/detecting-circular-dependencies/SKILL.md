@@ -17,6 +17,12 @@ Use circular dependency findings as entry points, not as the final answer. After
 - **Risk review mode**: Use cycle and layer evidence to identify architecture risks and likely bug paths. Use this when the user asks about blast-radius risk, boundary drift, "change one thing and break many things", or bug risks from dependency analysis.
 - **User impact mode**: Translate confirmed or likely bugs into user-visible behavior. Use this when the user asks what a finding means from a user's perspective.
 
+## Response Language
+
+Match the user's language for all prose, headings, labels, summaries, and continuation guidance. If the user writes in Chinese, write the report in Chinese. Keep code identifiers, file paths, import specifiers, CLI flags, JSON keys, package names, and useful technical terms such as `runtime`, `type-only`, `file-level`, `directory/package`, `layer`, and `bug review` in English or code spans when that is clearer.
+
+Do not use English template labels such as "Conclusion:", "Next step:", "Evidence:", "User-visible behavior:", or "Verification idea:" in a Chinese response. Use Chinese equivalents such as "结论：", "下一步：", "证据：", "用户可见表现：", and "验证思路：".
+
 ## Workflow
 
 1. Define the module boundary before analyzing: file, directory, package, library, service, or architectural layer. If the user names a broad module, choose the closest graph level (`file`, `directory`, `package`, or `layer`) and map broad selectors to source files.
@@ -81,7 +87,13 @@ After any Detection mode response, always offer the full follow-up flow, even wh
 - If only low-risk type-only/test-only/local cycles are found, offer to check whether any shared contracts, boundary leaks, temporal coupling, or semantic duplication could still create blast-radius bugs.
 - If no cycles are found, offer a non-cycle blast-radius scan focused on shared contracts, global/shared state, hidden coupling, import-time side effects, cache invalidation, duplicated semantics, and unclear error contracts.
 
-Use this wording unless the user already asked for bug review:
+Use language-matched wording unless the user already asked for bug review. For Chinese requests, use:
+
+```text
+下一步：我可以继续进入完整的爆炸半径 bug review：先检查已有的最高风险依赖路径，再扫描非循环风险，比如共享契约、隐式耦合、共享状态、时间耦合和语义重复，并把具体的用户可见 bug 和架构风险分开报告。
+```
+
+For English requests, use:
 
 ```text
 Next step: I can continue into the full blast-radius bug review: inspect the highest-risk dependency paths if any exist, then scan non-cycle risks such as shared contracts, hidden coupling, shared state, temporal coupling, and semantic duplication, and report concrete user-visible bugs separately from architecture risks.
@@ -103,7 +115,7 @@ For each high-risk cycle:
 1. Read the source and target files for the key import edge and at least one caller on each side when behavior is unclear.
 2. Determine whether the dependency path suggests contract drift, hidden coupling, shared state pollution, boundary leaks, temporal coupling, or semantic duplication.
 3. Report only findings with concrete code evidence. Separate confirmed bugs from architectural risks and speculative concerns.
-4. Explain the user-visible behavior for each confirmed or likely bug.
+4. Collect the user-visible behavior for each confirmed or likely bug, then report those impacts together in the separate user-impact section described under Report Ordering.
 5. Include a verification idea that would reproduce or falsify the finding.
 6. Do not modify code unless the user explicitly asks for a fix.
 
@@ -115,12 +127,40 @@ For each high-risk cycle:
 
 Inspect the top two to five high-risk paths for bug review unless the user asks for exhaustive analysis.
 
+## Report Ordering
+
+When reporting bug review results, group the answer by reader task instead of repeating every field inside every card.
+
+1. Start with the one-line conclusion.
+2. List all `[P1/P2/P3]` findings first. For each finding, include title, evidence, risk pattern, why it follows from the dependency path, verification idea, and suggested fix direction.
+3. Do not interleave user-visible behavior inside each finding.
+4. After all findings, add one user-impact summary section that answers: "What does this mean for users?"
+5. Then list non-bug architecture risks, verification notes, and caveats.
+
+For Chinese reports, the user-impact section heading should be:
+
+```text
+在用户视角，这些 bug 的表现形式是怎样的？
+```
+
+For English reports, use:
+
+```text
+What do these bugs look like from the user's perspective?
+```
+
 ## Reporting Format
 
 Start with a one-line conclusion:
 
 ```text
 Conclusion: Small/Medium/Large check, code not modified. File-level runtime cycles: yes/no. Directory/package/layer cycles: yes/no.
+```
+
+For Chinese requests, use:
+
+```text
+结论：Small/Medium/Large 检查，未修改代码。File-level runtime 循环：有/无。Directory/package/layer 循环：有/无。
 ```
 
 Then include the relevant sections:
@@ -130,9 +170,10 @@ Then include the relevant sections:
 3. Directory/package/layer cycles and layer-rule violations.
 4. Highest-risk architecture loops.
 5. Bug-review candidates, if the user asks for bug review or blast-radius risk.
-6. Confirmed findings, with severity, evidence, risk pattern, user-visible behavior, verification idea, and suggested fix direction.
-7. Non-bug architecture risks, kept separate from confirmed bugs.
-8. Verification, caveats, and the continuation guidance next step when the response stops after Detection mode.
+6. Confirmed findings, with severity, evidence, risk pattern, dependency-path reasoning, verification idea, and suggested fix direction.
+7. User Impact Summary: explain all confirmed or likely findings together from the user's perspective.
+8. Non-bug architecture risks, kept separate from confirmed bugs.
+9. Verification, caveats, and the continuation guidance next step when the response stops after Detection mode.
 
 Use this finding shape when reporting bugs:
 
@@ -141,9 +182,19 @@ Use this finding shape when reporting bugs:
 Evidence: file:line
 Risk pattern: Contract Drift / Hidden Coupling / Shared State Pollution / Boundary Leak / Temporal Coupling / Semantic Duplication
 Why this follows from the dependency path:
-User-visible behavior:
 Verification idea:
 Suggested fix direction:
+```
+
+For Chinese requests, use this finding shape:
+
+```text
+[P1/P2/P3] 标题
+证据：file:line
+风险模式：Contract Drift / Hidden Coupling / Shared State Pollution / Boundary Leak / Temporal Coupling / Semantic Duplication
+为什么这个问题来自该依赖路径：
+验证思路：
+建议修复方向：
 ```
 
 ## Bundled Detector

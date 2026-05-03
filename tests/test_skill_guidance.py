@@ -37,6 +37,34 @@ class SkillGuidanceTests(unittest.TestCase):
         self.assertIn("even when no cycles are found", text)
         self.assertIn("non-cycle blast-radius scan", text)
 
+    def test_skill_matches_user_language_for_report_prose(self) -> None:
+        skill_text = read(SKILL_MD)
+        playbook_text = read(PLAYBOOK)
+
+        self.assertIn("Response Language", skill_text)
+        self.assertIn("Match the user's language", skill_text)
+        self.assertIn("For Chinese requests", skill_text)
+        self.assertIn("下一步：我可以继续进入完整的爆炸半径 bug review", skill_text)
+        self.assertIn("结论：", skill_text)
+        self.assertIn("用户可见表现：", skill_text)
+
+        self.assertIn("For Chinese reports", playbook_text)
+        self.assertIn("在用户视角，这些 bug 的表现形式是怎样的？", playbook_text)
+        self.assertIn("验证思路：", playbook_text)
+
+    def test_skill_groups_findings_before_user_impact_summary(self) -> None:
+        skill_text = read(SKILL_MD)
+        playbook_text = read(PLAYBOOK)
+
+        self.assertIn("Report Ordering", skill_text)
+        self.assertIn("List all `[P1/P2/P3]` findings first", skill_text)
+        self.assertIn("Do not interleave user-visible behavior inside each finding", skill_text)
+        self.assertIn("在用户视角，这些 bug 的表现形式是怎样的？", skill_text)
+
+        self.assertIn("User Impact Summary", playbook_text)
+        self.assertIn("After listing all findings", playbook_text)
+        self.assertIn("在用户视角，这些 bug 的表现形式是怎样的？", playbook_text)
+
     def test_bug_review_playbook_covers_blast_radius_patterns(self) -> None:
         text = read(PLAYBOOK)
 
@@ -50,5 +78,5 @@ class SkillGuidanceTests(unittest.TestCase):
         ]:
             self.assertIn(pattern, text)
 
-        self.assertIn("User-visible behavior", text)
+        self.assertIn("user-visible behavior", text)
         self.assertIn("Verification idea", text)

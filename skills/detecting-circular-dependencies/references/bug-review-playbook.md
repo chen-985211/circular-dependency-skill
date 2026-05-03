@@ -11,7 +11,7 @@ Treat the dependency finding as a lead. Do not call something a bug unless code 
 3. Ask which behavior is supposed to be stable across entry points.
 4. Look for one of the six blast-radius patterns below.
 5. Report confirmed bugs separately from likely bugs and architecture risks.
-6. Explain the user-visible behavior and a verification idea for every confirmed or likely bug.
+6. Record the user-visible behavior for every confirmed or likely bug, but summarize those impacts together after all findings.
 
 ## Pattern 1: Contract Drift
 
@@ -131,10 +131,48 @@ Use this shape for each confirmed or likely bug:
 Evidence: file:line
 Risk pattern: Contract Drift / Hidden Coupling / Shared State Pollution / Boundary Leak / Temporal Coupling / Semantic Duplication
 Why this follows from the dependency path:
-User-visible behavior:
 Verification idea:
 Suggested fix direction:
 ```
+
+For Chinese reports, match the user's language for prose and labels. Keep code identifiers, file paths, and the six risk-pattern names in English if that is clearer. Use this shape:
+
+```text
+[P1/P2/P3] 标题
+证据：file:line
+风险模式：Contract Drift / Hidden Coupling / Shared State Pollution / Boundary Leak / Temporal Coupling / Semantic Duplication
+为什么这个问题来自该依赖路径：
+验证思路：
+建议修复方向：
+```
+
+## User Impact Summary
+
+After listing all findings, add a separate user-impact section. Do not repeat it inside each `[P1/P2/P3]` finding. This section should translate the combined findings into what users notice, lose, misunderstand, or cannot recover from.
+
+For English reports, use a heading like:
+
+```text
+What do these bugs look like from the user's perspective?
+```
+
+For Chinese reports, use:
+
+```text
+在用户视角，这些 bug 的表现形式是怎样的？
+```
+
+Suggested Chinese structure:
+
+```text
+在用户视角，这些 bug 的表现形式是怎样的？
+
+1. [对应 P2 标题] 用户会看到...
+2. [对应 P3 标题] 用户会看到...
+3. 共同影响：这些问题会让用户觉得...
+```
+
+Keep this section behavior-focused. Avoid repeating full evidence blocks; point back to `[P1/P2/P3]` labels when needed.
 
 Severity guide:
 
